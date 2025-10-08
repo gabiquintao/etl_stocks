@@ -9,11 +9,6 @@
     <trans_status>0</trans_status>
     <directory>/</directory>
     <parameters>
-      <parameter>
-        <name>USE_API</name>
-        <default_value>Y</default_value>
-        <description/>
-      </parameter>
     </parameters>
     <log>
       <trans-log-table>
@@ -433,46 +428,187 @@
     <clusterschemas>
     </clusterschemas>
     <created_user>-</created_user>
-    <created_date>2025/10/03 22:58:18.555</created_date>
+    <created_date>2025/10/05 15:03:00.697</created_date>
     <modified_user>-</modified_user>
-    <modified_date>2025/10/03 22:58:18.555</modified_date>
+    <modified_date>2025/10/05 15:03:00.697</modified_date>
     <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
+  <connection>
+    <name>etl_stocks</name>
+    <server>localhost</server>
+    <type>POSTGRESQL</type>
+    <access>Native</access>
+    <database>etl_stocks</database>
+    <port>5432</port>
+    <username>postgres</username>
+    <password>Encrypted 2be98afc86aa7f2e4cb79ce108bc0fd8d</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute>
+        <code>FORCE_IDENTIFIERS_TO_LOWERCASE</code>
+        <attribute>N</attribute>
+      </attribute>
+      <attribute>
+        <code>FORCE_IDENTIFIERS_TO_UPPERCASE</code>
+        <attribute>N</attribute>
+      </attribute>
+      <attribute>
+        <code>IS_CLUSTERED</code>
+        <attribute>N</attribute>
+      </attribute>
+      <attribute>
+        <code>MSSQL_DOUBLE_DECIMAL_SEPARATOR</code>
+        <attribute>N</attribute>
+      </attribute>
+      <attribute>
+        <code>PORT_NUMBER</code>
+        <attribute>5432</attribute>
+      </attribute>
+      <attribute>
+        <code>PRESERVE_RESERVED_WORD_CASE</code>
+        <attribute>Y</attribute>
+      </attribute>
+      <attribute>
+        <code>QUOTE_ALL_FIELDS</code>
+        <attribute>N</attribute>
+      </attribute>
+      <attribute>
+        <code>SUPPORTS_BOOLEAN_DATA_TYPE</code>
+        <attribute>Y</attribute>
+      </attribute>
+      <attribute>
+        <code>SUPPORTS_TIMESTAMP_DATA_TYPE</code>
+        <attribute>Y</attribute>
+      </attribute>
+      <attribute>
+        <code>USE_POOLING</code>
+        <attribute>N</attribute>
+      </attribute>
+    </attributes>
+  </connection>
   <order>
     <hop>
-      <from>Set API Variables</from>
+      <from>Get Active Stocks</from>
+      <to>Build API URLs</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter Values</from>
+      <to>Parse JSON Response</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Build API URLs</from>
       <to>Call Alpha Vantage API</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Data grid</from>
-      <to>Set API Variables</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Call Alpha Vantage API</from>
-      <to>JSON input</to>
+      <to>Filter Values</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>JSON input</from>
-      <to>Filter rows</to>
+      <from>Format Fields</from>
+      <to>Write to CSV</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Filter rows</from>
-      <to>Text file output</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Filter rows</from>
-      <to>Write to log</to>
+      <from>Parse JSON Response</from>
+      <to>Format Fields</to>
       <enabled>Y</enabled>
     </hop>
   </order>
+  <step>
+    <name>Build API URLs</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>// ========== CONFIGURATION - EDIT THIS ==========
+var API_KEY = "KTF5BZIZ3SN9BBDB";  // REPLACE THIS!
+// ===============================================
+
+var BASE_URL = "https://www.alphavantage.co/query";
+var api_function = "TIME_SERIES_DAILY";
+var outputsize = "compact";  // compact = 100 days, full = 20+ years
+
+// Build complete API URL
+var api_url = BASE_URL + 
+              "?function=" + api_function +
+              "&amp;symbol=" + symbol +
+              "&amp;outputsize=" + outputsize +
+              "&amp;apikey=" + API_KEY;
+
+// Add metadata fields
+var extraction_timestamp = new java.util.Date();
+var transformation_name = "extract_alpha_vantage_data";
+var api_function_type = api_function;</jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>api_url</name>
+        <rename>api_url</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+      <field>
+        <name>extraction_timestamp</name>
+        <rename>extraction_timestamp</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+      <field>
+        <name>transformation_name</name>
+        <rename>transformation_name</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+      <field>
+        <name>api_function_type</name>
+        <rename>api_function_type</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>224</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
   <step>
     <name>Call Alpha Vantage API</name>
     <type>Rest</type>
@@ -506,9 +642,9 @@
     <matrixParameters>
       </matrixParameters>
     <result>
-      <name>api_response</name>
-      <code/>
-      <response_time/>
+      <name>json_response</name>
+      <code>http_status_code</code>
+      <response_time>response_time_ms</response_time>
       <response_header/>
     </result>
     <attributes/>
@@ -520,63 +656,13 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>400</xloc>
-      <yloc>240</yloc>
+      <xloc>416</xloc>
+      <yloc>224</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
   <step>
-    <name>Data grid</name>
-    <type>DataGrid</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>symbol</name>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>10</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <field_null_if/>
-      </field>
-    </fields>
-    <data>
-      <line>
-        <item>AAPL</item>
-      </line>
-      <line>
-        <item>MSFT</item>
-      </line>
-      <line>
-        <item/>
-      </line>
-    </data>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>112</xloc>
-      <yloc>240</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>Set API Variables</name>
+    <name>Filter Values</name>
     <type>ScriptValueMod</type>
     <description/>
     <distribute>Y</distribute>
@@ -592,29 +678,34 @@
       <jsScript>
         <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
-        <jsScript_script>// Define your Alpha Vantage API Key
-var api_key = "8R42ZUVX01YBFFPS"; // REPLACE WITH YOUR ACTUAL API KEY
+        <jsScript_script>// Parse the JSON response
+var jsonObj = JSON.parse(json_response);
+var timeSeries = jsonObj["Time Series (Daily)"];
 
-api_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&amp;symbol=" + symbol + "&amp;apikey=" + api_key + "&amp;outputsize=compact";
+// Create array with dates included
+var resultArray = [];
 
-// Variables available for next steps
-api_url;
+for (var date in timeSeries) {
+    var dayData = timeSeries[date];
+	writeToLog("d", "Close: " + dayData["4. close"] + ", Volume: " + dayData["5. volume"]);
+    resultArray.push({
+        "date": date,
+        "open": dayData["1. open"],
+        "high": dayData["2. high"],
+        "low": dayData["3. low"],
+        "close": dayData["4. close"],
+        "volume": dayData["5. volume"]
+    });
+}
 
-</jsScript_script>
+// Convert back to JSON string
+var transformed_json = JSON.stringify(resultArray);</jsScript_script>
       </jsScript>
     </jsScripts>
     <fields>
       <field>
-        <name>api_key</name>
-        <rename>api_key</rename>
-        <type>String</type>
-        <length>-1</length>
-        <precision>-1</precision>
-        <replace>N</replace>
-      </field>
-      <field>
-        <name>api_url</name>
-        <rename>api_url</rename>
+        <name>transformed_json</name>
+        <rename>transformed_json</rename>
         <type>String</type>
         <length>-1</length>
         <precision>-1</precision>
@@ -630,13 +721,124 @@ api_url;
       </output>
     </remotesteps>
     <GUI>
-      <xloc>256</xloc>
-      <yloc>240</yloc>
+      <xloc>592</xloc>
+      <yloc>224</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
   <step>
-    <name>JSON input</name>
+    <name>Get Active Stocks</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>etl_stocks</connection>
+    <sql>SELECT 
+    stock_id,
+    symbol,
+    company_name
+FROM stocks
+WHERE is_active = TRUE
+ORDER BY symbol
+LIMIT 3;</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
+        <name>stock_id</name>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>Get Active Stocks</origin>
+        <comments>stock_id</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>en_US</date_format_locale>
+        <date_format_timezone>Europe/Lisbon</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>String</type>
+        <storagetype>normal</storagetype>
+        <name>symbol</name>
+        <length>10</length>
+        <precision>-1</precision>
+        <origin>Get Active Stocks</origin>
+        <comments>symbol</comments>
+        <conversion_Mask/>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>en_US</date_format_locale>
+        <date_format_timezone>Europe/Lisbon</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>String</type>
+        <storagetype>normal</storagetype>
+        <name>company_name</name>
+        <length>255</length>
+        <precision>-1</precision>
+        <origin>Get Active Stocks</origin>
+        <comments>company_name</comments>
+        <conversion_Mask/>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol>.</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>en_US</date_format_locale>
+        <date_format_timezone>Europe/Lisbon</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+    </row-meta>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>144</xloc>
+      <yloc>224</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Parse JSON Response</name>
     <type>JsonInput</type>
     <description/>
     <distribute>Y</distribute>
@@ -652,10 +854,10 @@ api_url;
     <addresultfile>N</addresultfile>
     <readurl>N</readurl>
     <removeSourceField>N</removeSourceField>
-    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <IsIgnoreEmptyFile>Y</IsIgnoreEmptyFile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <ignoreMissingPath>Y</ignoreMissingPath>
-    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <defaultPathLeafToNull>N</defaultPathLeafToNull>
     <includeNulls>N</includeNulls>
     <rownum_field/>
     <file>
@@ -667,8 +869,8 @@ api_url;
     </file>
     <fields>
       <field>
-        <name>timestamp</name>
-        <path>$['Time Series (Daily)'][*]~</path>
+        <name>date</name>
+        <path>$[*].date</path>
         <type>String</type>
         <format/>
         <currency/>
@@ -681,7 +883,7 @@ api_url;
       </field>
       <field>
         <name>open</name>
-        <path>$['Time Series (Daily)'][*]['1. open']</path>
+        <path>$[*].open</path>
         <type>Number</type>
         <format/>
         <currency/>
@@ -694,7 +896,7 @@ api_url;
       </field>
       <field>
         <name>high</name>
-        <path>$['Time Series (Daily)'][*]['2. high']</path>
+        <path>$[*].high</path>
         <type>Number</type>
         <format/>
         <currency/>
@@ -707,7 +909,7 @@ api_url;
       </field>
       <field>
         <name>low</name>
-        <path>$['Time Series (Daily)'][*]['3. low']</path>
+        <path>$[*].low</path>
         <type>Number</type>
         <format/>
         <currency/>
@@ -720,7 +922,7 @@ api_url;
       </field>
       <field>
         <name>close</name>
-        <path>$['Time Series (Daily)'][*]['4. close']</path>
+        <path>$[*].close</path>
         <type>Number</type>
         <format/>
         <currency/>
@@ -733,7 +935,7 @@ api_url;
       </field>
       <field>
         <name>volume</name>
-        <path>$['Time Series (Daily)'][*]['5. volume']</path>
+        <path>$[*].volume</path>
         <type>Integer</type>
         <format/>
         <currency/>
@@ -748,7 +950,7 @@ api_url;
     <limit>0</limit>
     <IsInFields>Y</IsInFields>
     <IsAFile>N</IsAFile>
-    <valueField>api_response</valueField>
+    <valueField>transformed_json</valueField>
     <shortFileFieldName/>
     <pathFieldName/>
     <hiddenFieldName/>
@@ -766,13 +968,13 @@ api_url;
       </output>
     </remotesteps>
     <GUI>
-      <xloc>544</xloc>
-      <yloc>240</yloc>
+      <xloc>768</xloc>
+      <yloc>224</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
   <step>
-    <name>Text file output</name>
+    <name>Write to CSV</name>
     <type>TextFileOutput</type>
     <description/>
     <distribute>Y</distribute>
@@ -796,15 +998,15 @@ api_url;
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>C:\Users\gabri\Documents\Estudos\isi\etl_stocks\pentaho\data\extracted_prices\extracted_prices.csv</name>
+      <name>C:\Users\gabri\Documents\Estudos\isi\etl_stocks\pentaho\data\temp_data\raw_prices</name>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
-      <extention/>
+      <extention>csv</extention>
       <append>N</append>
       <split>N</split>
       <haspartno>N</haspartno>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
+      <add_date>Y</add_date>
+      <add_time>Y</add_time>
       <SpecifyFormat>N</SpecifyFormat>
       <date_time_format/>
       <add_to_result_filenames>Y</add_to_result_filenames>
@@ -813,6 +1015,114 @@ api_url;
       <splitevery/>
     </file>
     <fields>
+      <field>
+        <name>stock_id</name>
+        <type>Integer</type>
+        <format>####0;-####0</format>
+        <currency/>
+        <decimal>,</decimal>
+        <group>.</group>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>9</length>
+        <precision>0</precision>
+      </field>
+      <field>
+        <name>symbol</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>price_date</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
+      <field>
+        <name>open_price</name>
+        <type>Number</type>
+        <format>#.0000</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>4</precision>
+      </field>
+      <field>
+        <name>high_price</name>
+        <type>Number</type>
+        <format>#.0000</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>4</precision>
+      </field>
+      <field>
+        <name>low_price</name>
+        <type>Number</type>
+        <format>#.0000</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>4</precision>
+      </field>
+      <field>
+        <name>close_price</name>
+        <type>Number</type>
+        <format>#.0000</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>4</precision>
+      </field>
+      <field>
+        <name>volume</name>
+        <type>Integer</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>0</precision>
+      </field>
+      <field>
+        <name>extraction_timestamp</name>
+        <type>Date</type>
+        <format>yyyy/MM/dd HH:mm:ss.SSS</format>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <trim_type>none</trim_type>
+        <length>-1</length>
+        <precision>-1</precision>
+      </field>
     </fields>
     <attributes/>
     <cluster_schema/>
@@ -823,14 +1133,14 @@ api_url;
       </output>
     </remotesteps>
     <GUI>
-      <xloc>832</xloc>
-      <yloc>208</yloc>
+      <xloc>1136</xloc>
+      <yloc>224</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
   <step>
-    <name>Filter rows</name>
-    <type>FilterRows</type>
+    <name>Format Fields</name>
+    <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -839,57 +1149,198 @@ api_url;
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to>Text file output</send_true_to>
-    <send_false_to>Write to log</send_false_to>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>symbol</leftvalue>
-        <function>REGEXP</function>
-        <rightvalue/>
-        <value>
-          <name>constant</name>
-          <type>String</type>
-          <text>^[A-Z]{1,5}$</text>
-          <length>-1</length>
-          <precision>-1</precision>
-          <isnull>N</isnull>
-          <mask/>
-        </value>
-      </condition>
-    </compare>
-    <attributes/>
-    <cluster_schema/>
-    <remotesteps>
-      <input>
-      </input>
-      <output>
-      </output>
-    </remotesteps>
-    <GUI>
-      <xloc>672</xloc>
-      <yloc>240</yloc>
-      <draw>Y</draw>
-    </GUI>
-  </step>
-  <step>
-    <name>Write to log</name>
-    <type>WriteToLog</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <loglevel>log_level_basic</loglevel>
-    <displayHeader>Y</displayHeader>
-    <limitRows>N</limitRows>
-    <limitRowsNumber>0</limitRowsNumber>
-    <logmessage/>
     <fields>
-      </fields>
+      <field>
+        <name>stock_id</name>
+        <rename/>
+      </field>
+      <field>
+        <name>symbol</name>
+        <rename/>
+      </field>
+      <field>
+        <name>date</name>
+        <rename>price_date</rename>
+      </field>
+      <field>
+        <name>open</name>
+        <rename>open_price</rename>
+      </field>
+      <field>
+        <name>high</name>
+        <rename>high_price</rename>
+      </field>
+      <field>
+        <name>low</name>
+        <rename>low_price</rename>
+      </field>
+      <field>
+        <name>close</name>
+        <rename>close_price</rename>
+      </field>
+      <field>
+        <name>volume</name>
+        <rename/>
+      </field>
+      <field>
+        <name>extraction_timestamp</name>
+        <rename/>
+      </field>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>stock_id</name>
+        <rename>stock_id</rename>
+        <type>Integer</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask/>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>symbol</name>
+        <rename>symbol</rename>
+        <type>String</type>
+        <length>10</length>
+        <precision>-2</precision>
+        <conversion_mask/>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>price_date</name>
+        <rename>price_date</rename>
+        <type>String</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy-MM-dd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>open_price</name>
+        <rename>open_price</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>4</precision>
+        <conversion_mask>#.0000</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>high_price</name>
+        <rename>high_price</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>4</precision>
+        <conversion_mask>#.0000</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>low_price</name>
+        <rename>low_price</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>4</precision>
+        <conversion_mask>#.0000</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>close_price</name>
+        <rename>close_price</rename>
+        <type>Number</type>
+        <length>-2</length>
+        <precision>4</precision>
+        <conversion_mask>#.0000</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>volume</name>
+        <rename>volume</rename>
+        <type>Integer</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask/>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>extraction_timestamp</name>
+        <rename>extraction_timestamp</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyy/MM/dd HH:mm:ss.SSS</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+    </fields>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
@@ -899,24 +1350,12 @@ api_url;
       </output>
     </remotesteps>
     <GUI>
-      <xloc>832</xloc>
-      <yloc>272</yloc>
+      <xloc>928</xloc>
+      <yloc>224</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
   <step_error_handling>
-    <error>
-      <source_step>Call Alpha Vantage API</source_step>
-      <target_step/>
-      <is_enabled>Y</is_enabled>
-      <nr_valuename/>
-      <descriptions_valuename>error_description</descriptions_valuename>
-      <fields_valuename>error_field</fields_valuename>
-      <codes_valuename>error_code</codes_valuename>
-      <max_errors/>
-      <max_pct_errors/>
-      <min_pct_rows/>
-    </error>
   </step_error_handling>
   <slave-step-copy-partition-distribution>
   </slave-step-copy-partition-distribution>
