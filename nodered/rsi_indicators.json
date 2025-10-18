@@ -1,0 +1,150 @@
+[
+    {
+        "id": "rsi_flow_updated",
+        "type": "tab",
+        "label": "RSI Indicators",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "rsi_trigger_updated",
+        "type": "inject",
+        "z": "rsi_flow_updated",
+        "name": "Refresh Every 1h",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "3600",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "get_all_rsi"
+            ]
+        ]
+    },
+    {
+        "id": "get_all_rsi",
+        "type": "postgresql",
+        "z": "rsi_flow_updated",
+        "name": "Get All RSI Values",
+        "query": "SELECT DISTINCT ON (s.symbol)\n    s.symbol,\n    ti.indicator_value as rsi,\n    ti.indicator_date\nFROM technical_indicators ti\nINNER JOIN stocks s ON ti.stock_id = s.stock_id\nWHERE LOWER(ti.indicator_type) = 'rsi'\n    AND s.is_active = TRUE\nORDER BY s.symbol, ti.indicator_date DESC;",
+        "postgreSQLConfig": "22527f1d94f6a320",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 380,
+        "y": 80,
+        "wires": [
+            [
+                "format_rsi_data"
+            ]
+        ]
+    },
+    {
+        "id": "format_rsi_data",
+        "type": "function",
+        "z": "rsi_flow_updated",
+        "name": "Format RSI Data",
+        "func": "const data = msg.payload;\nconst rsiData = {};\n\ndata.forEach(row => {\n    rsiData[row.symbol] = parseFloat(row.rsi);\n});\n\nmsg.payload = rsiData;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 80,
+        "wires": [
+            [
+                "rsi_display_updated"
+            ]
+        ]
+    },
+    {
+        "id": "rsi_display_updated",
+        "type": "ui_template",
+        "z": "rsi_flow_updated",
+        "group": "rsi_group_updated",
+        "name": "Professional RSI Display",
+        "order": 1,
+        "width": "24",
+        "height": "5",
+        "format": "<style>\n    .rsi-container {\n        display: grid;\n        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\n        gap: 16px;\n        padding: 0;\n    }\n\n    .rsi-card {\n        background: #ffffff;\n        border: 1px solid #e5e7eb;\n        border-radius: 8px;\n        padding: 20px;\n        transition: border-color 0.2s;\n    }\n\n    .rsi-card:hover {\n        border-color: #3b82f6;\n    }\n\n    .rsi-header {\n        display: flex;\n        justify-content: space-between;\n        align-items: center;\n        margin-bottom: 16px;\n    }\n\n    .rsi-symbol {\n        font-size: 16px;\n        font-weight: 700;\n        color: #111827;\n        letter-spacing: -0.01em;\n    }\n\n    .rsi-label {\n        font-size: 11px;\n        color: #6b7280;\n        text-transform: uppercase;\n        letter-spacing: 0.05em;\n        font-weight: 600;\n    }\n\n    .rsi-value {\n        font-size: 48px;\n        font-weight: 700;\n        text-align: center;\n        margin: 16px 0;\n        letter-spacing: -0.03em;\n    }\n\n    .rsi-value.oversold { color: #10b981; }\n    .rsi-value.neutral { color: #f59e0b; }\n    .rsi-value.overbought { color: #ef4444; }\n\n    .rsi-bar {\n        width: 100%;\n        height: 8px;\n        background: #e5e7eb;\n        border-radius: 4px;\n        position: relative;\n        overflow: hidden;\n        margin-bottom: 8px;\n    }\n\n    .rsi-bar-fill {\n        height: 100%;\n        transition: width 0.3s ease, background-color 0.3s ease;\n        border-radius: 4px;\n    }\n\n    .rsi-bar-fill.oversold { background: #10b981; }\n    .rsi-bar-fill.neutral { background: #f59e0b; }\n    .rsi-bar-fill.overbought { background: #ef4444; }\n\n    .rsi-zones {\n        display: flex;\n        justify-content: space-between;\n        font-size: 10px;\n        color: #9ca3af;\n        text-transform: uppercase;\n        letter-spacing: 0.05em;\n        font-weight: 600;\n    }\n\n    .rsi-status {\n        text-align: center;\n        margin-top: 12px;\n        padding: 6px 12px;\n        border-radius: 4px;\n        font-size: 12px;\n        font-weight: 600;\n        text-transform: uppercase;\n        letter-spacing: 0.05em;\n    }\n\n    .rsi-status.oversold {\n        background: #d1fae5;\n        color: #065f46;\n    }\n\n    .rsi-status.neutral {\n        background: #fef3c7;\n        color: #92400e;\n    }\n\n    .rsi-status.overbought {\n        background: #fee2e2;\n        color: #991b1b;\n    }\n</style>\n\n<div class=\"rsi-container\">\n    <div class=\"rsi-card\" ng-repeat=\"(symbol, value) in msg.payload\">\n        <div class=\"rsi-header\">\n            <span class=\"rsi-symbol\">{{symbol}}</span>\n            <span class=\"rsi-label\">RSI (14)</span>\n        </div>\n        \n        <div class=\"rsi-value\" \n             ng-class=\"{\n             'oversold': value < 30, \n             'neutral': value >= 30 && value <= 70, \n             'overbought': value > 70}\">\n            {{value | number:1}}\n        </div>\n\n        <div class=\"rsi-bar\">\n            <div class=\"rsi-bar-fill\" \n                 ng-class=\"{\n                 'oversold': value < 30, \n                 'neutral': value >= 30 && value <= 70, \n                 'overbought': value > 70}\"\n                 ng-style=\"{width: value + '%'}\"></div>\n        </div>\n\n        <div class=\"rsi-zones\">\n            <span>0</span>\n            <span>30</span>\n            <span>70</span>\n            <span>100</span>\n        </div>\n\n        <div class=\"rsi-status\" \n             ng-class=\"{\n             'oversold': value < 30, \n             'neutral': value >= 30 && value <= 70, \n             'overbought': value > 70}\">\n            <span ng-if=\"value < 30\">Oversold</span>\n            <span ng-if=\"value >= 30 && value <= 70\">Neutral</span>\n            <span ng-if=\"value > 70\">Overbought</span>\n        </div>\n    </div>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 860,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22527f1d94f6a320",
+        "type": "postgreSQLConfig",
+        "name": "etl_stocks_db",
+        "host": "localhost",
+        "hostFieldType": "str",
+        "port": 5432,
+        "portFieldType": "num",
+        "database": "etl_stocks",
+        "databaseFieldType": "str",
+        "ssl": "false",
+        "sslFieldType": "bool",
+        "applicationName": "",
+        "applicationNameType": "str",
+        "max": 10,
+        "maxFieldType": "num",
+        "idle": 1000,
+        "idleFieldType": "num",
+        "connectionTimeout": 10000,
+        "connectionTimeoutFieldType": "num",
+        "user": "postgres",
+        "userFieldType": "str",
+        "password": "5227",
+        "passwordFieldType": "str"
+    },
+    {
+        "id": "rsi_group_updated",
+        "type": "ui_group",
+        "name": "RSI Indicators",
+        "tab": "152c379456ac1dae",
+        "order": 2,
+        "disp": true,
+        "width": "24",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "152c379456ac1dae",
+        "type": "ui_tab",
+        "name": "Overview",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "3f29c430e69bf59b",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-postgresql": "0.15.4",
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
