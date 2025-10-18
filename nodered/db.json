@@ -1,0 +1,59 @@
+[
+    {
+        "id": "6a017e0a2fcaafe9",
+        "type": "tab",
+        "label": "DB",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "eea46bbeeb776d78",
+        "type": "postgresql",
+        "z": "6a017e0a2fcaafe9",
+        "name": "",
+        "query": "SELECT * FROM ;",
+        "postgreSQLConfig": "22527f1d94f6a320",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 110,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22527f1d94f6a320",
+        "type": "postgreSQLConfig",
+        "name": "etl_stocks_db",
+        "host": "localhost",
+        "hostFieldType": "str",
+        "port": 5432,
+        "portFieldType": "num",
+        "database": "etl_stocks",
+        "databaseFieldType": "str",
+        "ssl": "false",
+        "sslFieldType": "bool",
+        "applicationName": "",
+        "applicationNameType": "str",
+        "max": 10,
+        "maxFieldType": "num",
+        "idle": 1000,
+        "idleFieldType": "num",
+        "connectionTimeout": 10000,
+        "connectionTimeoutFieldType": "num",
+        "user": "postgres",
+        "userFieldType": "str",
+        "password": "5227",
+        "passwordFieldType": "str"
+    },
+    {
+        "id": "0ea61d81c0894e00",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-postgresql": "0.15.4"
+        }
+    }
+]
