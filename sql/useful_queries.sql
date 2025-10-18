@@ -418,31 +418,6 @@ WHERE sma_50 IS NOT NULL
   AND indicator_date >= CURRENT_DATE - INTERVAL '90 days'
 ORDER BY indicator_date DESC;
 
--- ============================================================================
--- SECTION 6: MAINTENANCE AND CLEANUP QUERIES
--- ============================================================================
-
--- 6.1 Delete old ETL logs (older than 90 days)
--- CAUTION: Uncomment only when you want to run this
-/*
-DELETE FROM data_quality_log
-WHERE check_timestamp < CURRENT_DATE - INTERVAL '90 days';
-
-DELETE FROM etl_execution_log
-WHERE start_time < CURRENT_DATE - INTERVAL '90 days';
-*/
-
--- 6.2 Vacuum and analyze tables for performance
--- CAUTION: Run these during low-usage periods
-/*
-VACUUM ANALYZE stocks;
-VACUUM ANALYZE daily_prices;
-VACUUM ANALYZE technical_indicators;
-VACUUM ANALYZE market_overview;
-VACUUM ANALYZE etl_execution_log;
-VACUUM ANALYZE data_quality_log;
-*/
-
 -- 6.3 Check table sizes
 SELECT 
     schemaname,
@@ -464,56 +439,6 @@ SELECT
 FROM pg_stat_user_indexes
 WHERE schemaname = 'public'
 ORDER BY idx_scan DESC;
-
--- ============================================================================
--- SECTION 7: SAMPLE DATA INSERTION (FOR TESTING)
--- ============================================================================
-
--- 7.1 Insert sample price data (for testing transformations)
--- CAUTION: Only use for testing, will be replaced by ETL
-/*
-INSERT INTO daily_prices (stock_id, price_date, open_price, high_price, low_price, close_price, volume)
-SELECT 
-    s.stock_id,
-    CURRENT_DATE - (n || ' days')::INTERVAL,
-    100 + RANDOM() * 50,
-    110 + RANDOM() * 50,
-    90 + RANDOM() * 50,
-    105 + RANDOM() * 50,
-    (1000000 + RANDOM() * 5000000)::BIGINT
-FROM stocks s
-CROSS JOIN generate_series(1, 30) n
-WHERE NOT EXISTS (
-    SELECT 1 FROM daily_prices dp 
-    WHERE dp.stock_id = s.stock_id 
-      AND dp.price_date = CURRENT_DATE - (n || ' days')::INTERVAL
-);
-*/
-
--- 7.2 Test ETL log insertion
-/*
-INSERT INTO etl_execution_log (
-    job_name, 
-    transformation_name, 
-    execution_type,
-    start_time, 
-    end_time, 
-    duration_seconds,
-    status, 
-    records_processed, 
-    records_inserted
-) VALUES (
-    'test_job', 
-    'test_transformation', 
-    'TRANSFORMATION',
-    CURRENT_TIMESTAMP - INTERVAL '5 minutes',
-    CURRENT_TIMESTAMP,
-    300,
-    'SUCCESS',
-    100,
-    100
-);
-*/
 
 -- ============================================================================
 -- END OF USEFUL QUERIES
