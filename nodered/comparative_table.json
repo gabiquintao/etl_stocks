@@ -1,0 +1,150 @@
+[
+    {
+        "id": "cfaccb6bfa6037da",
+        "type": "tab",
+        "label": "Comparative Table",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "4c6510ad2df485eb",
+        "type": "inject",
+        "z": "cfaccb6bfa6037da",
+        "name": "Refresh Every 1h",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "3600",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "6ad5a8e4b8f52c81"
+            ]
+        ]
+    },
+    {
+        "id": "6ad5a8e4b8f52c81",
+        "type": "postgresql",
+        "z": "cfaccb6bfa6037da",
+        "name": "Get Comparison Data",
+        "query": "SELECT \n    s.symbol,\n    s.company_name,\n    dp.close_price,\n    dp.open_price,\n    dp.high_price,\n    dp.low_price,\n    dp.volume,\n    dp.price_change_pct,\n    dp.daily_return,\n    ti.rsi_value,\n    dp.price_date\nFROM stocks s\nINNER JOIN daily_prices dp ON s.stock_id = dp.stock_id\nLEFT JOIN (\n    SELECT stock_id, indicator_value as rsi_value,\n           ROW_NUMBER() OVER (PARTITION BY stock_id ORDER BY created_at DESC) as rn\n    FROM technical_indicators\n    WHERE LOWER(indicator_type) = 'rsi'\n) ti ON s.stock_id = ti.stock_id AND ti.rn = 1\nINNER JOIN (\n    SELECT stock_id, MAX(price_date) as max_date\n    FROM daily_prices\n    GROUP BY stock_id\n) latest ON dp.stock_id = latest.stock_id AND dp.price_date = latest.max_date\nWHERE s.is_active = TRUE\nGROUP BY s.symbol, s.company_name, dp.close_price, dp.open_price, \n         dp.high_price, dp.low_price, dp.volume, dp.price_change_pct, \n         dp.daily_return, ti.rsi_value, dp.price_date\nORDER BY s.symbol;",
+        "postgreSQLConfig": "22527f1d94f6a320",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 390,
+        "y": 80,
+        "wires": [
+            [
+                "e55c330d50b10d2c"
+            ]
+        ]
+    },
+    {
+        "id": "e55c330d50b10d2c",
+        "type": "function",
+        "z": "cfaccb6bfa6037da",
+        "name": "Format Table Data",
+        "func": "const data = msg.payload;\n\nconst formatted = data.map(row => {\n    return {\n        symbol: row.symbol,\n        company: row.company_name,\n        price: parseFloat(row.close_price).toFixed(2),\n        open: parseFloat(row.open_price).toFixed(2),\n        high: parseFloat(row.high_price).toFixed(2),\n        low: parseFloat(row.low_price).toFixed(2),\n        volume: parseInt(row.volume).toLocaleString(),\n        change: parseFloat(row.price_change_pct).toFixed(2),\n        dailyReturn: parseFloat(row.daily_return).toFixed(2),\n        rsi: row.rsi ? parseFloat(row.rsi).toFixed(1) : 'N/A',\n        date: new Date(row.price_date).toLocaleDateString('pt-PT'),\n        changeDirection: parseFloat(row.price_change_pct) >= 0 ? 'up' : 'down'\n    };\n});\n\nmsg.payload = formatted;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 80,
+        "wires": [
+            [
+                "452d1d412ddafa77"
+            ]
+        ]
+    },
+    {
+        "id": "452d1d412ddafa77",
+        "type": "ui_template",
+        "z": "cfaccb6bfa6037da",
+        "group": "table_group",
+        "name": "Comparative Table Display",
+        "order": 1,
+        "width": "24",
+        "height": "7",
+        "format": "<style>\n    .table-container {\n        background: #ffffff;\n        border: 1px solid #e5e7eb;\n        border-radius: 8px;\n        overflow: hidden;\n        height: 100%;\n        display: flex;\n        flex-direction: column;\n    }\n\n    .table-header {\n        display: flex;\n        justify-content: space-between;\n        align-items: center;\n        padding: 16px 20px;\n        border-bottom: 1px solid #e5e7eb;\n        flex-shrink: 0;\n    }\n\n    .table-title {\n        font-size: 16px;\n        font-weight: 700;\n        color: #111827;\n    }\n\n    .table-actions {\n        display: flex;\n        gap: 8px;\n    }\n\n    .btn {\n        padding: 6px 12px;\n        border: 1px solid #e5e7eb;\n        border-radius: 6px;\n        background: #ffffff;\n        font-size: 12px;\n        font-weight: 600;\n        color: #374151;\n        cursor: pointer;\n        transition: all 0.2s;\n    }\n\n    .btn:hover {\n        background: #f9fafb;\n        border-color: #3b82f6;\n        color: #3b82f6;\n    }\n\n    .search-box {\n        padding: 8px 12px;\n        border: 1px solid #e5e7eb;\n        border-radius: 6px;\n        font-size: 13px;\n        width: 200px;\n    }\n\n    .search-box:focus {\n        outline: none;\n        border-color: #3b82f6;\n    }\n\n    .table-wrapper {\n        flex: 1;\n        overflow-y: auto;\n        overflow-x: auto;\n    }\n\n    .data-table {\n        width: 100%;\n        border-collapse: collapse;\n    }\n\n    .data-table thead {\n        background: #f9fafb;\n        border-bottom: 2px solid #e5e7eb;\n        position: sticky;\n        top: 0;\n        z-index: 10;\n    }\n\n    .data-table th {\n        padding: 12px 16px;\n        text-align: left;\n        font-size: 11px;\n        font-weight: 700;\n        color: #6b7280;\n        text-transform: uppercase;\n        letter-spacing: 0.05em;\n        cursor: pointer;\n        user-select: none;\n        white-space: nowrap;\n    }\n\n    .data-table th:hover {\n        background: #f3f4f6;\n    }\n\n    .data-table tbody tr {\n        border-bottom: 1px solid #f3f4f6;\n        transition: background 0.2s;\n    }\n\n    .data-table tbody tr:hover {\n        background: #f9fafb;\n    }\n\n    .data-table td {\n        padding: 12px 16px;\n        font-size: 13px;\n        color: #374151;\n        white-space: nowrap;\n    }\n\n    .symbol-cell {\n        font-weight: 700;\n        color: #111827;\n    }\n\n    .company-cell {\n        font-size: 12px;\n        color: #6b7280;\n        max-width: 200px;\n        overflow: hidden;\n        text-overflow: ellipsis;\n    }\n\n    .price-cell {\n        font-weight: 600;\n        font-size: 14px;\n    }\n\n    .change-cell {\n        font-weight: 600;\n    }\n\n    .change-cell.positive { color: #10b981; }\n    .change-cell.negative { color: #ef4444; }\n\n    .change-badge {\n        display: inline-flex;\n        align-items: center;\n        gap: 4px;\n        padding: 4px 8px;\n        border-radius: 4px;\n        font-size: 12px;\n        font-weight: 600;\n    }\n\n    .change-badge.up {\n        background: #d1fae5;\n        color: #065f46;\n    }\n\n    .change-badge.down {\n        background: #fee2e2;\n        color: #991b1b;\n    }\n\n    .rsi-cell {\n        font-weight: 600;\n    }\n\n    .rsi-cell.oversold { color: #10b981; }\n    .rsi-cell.overbought { color: #ef4444; }\n    .rsi-cell.neutral { color: #f59e0b; }\n\n    .sort-icon {\n        margin-left: 4px;\n        font-size: 10px;\n        opacity: 0.5;\n    }\n\n    /* Scrollbar styling */\n    .table-wrapper::-webkit-scrollbar {\n        width: 8px;\n        height: 8px;\n    }\n\n    .table-wrapper::-webkit-scrollbar-track {\n        background: #f1f1f1;\n    }\n\n    .table-wrapper::-webkit-scrollbar-thumb {\n        background: #cbd5e1;\n        border-radius: 4px;\n    }\n\n    .table-wrapper::-webkit-scrollbar-thumb:hover {\n        background: #94a3b8;\n    }\n</style>\n\n<div class=\"table-container\" ng-init=\"sortKey='symbol'; reverse=false; searchText=''\">\n    <div class=\"table-header\">\n        <div class=\"table-title\">Stock Comparison</div>\n        <div class=\"table-actions\">\n            <input \n                type=\"text\" \n                class=\"search-box\" \n                placeholder=\"Search stocks...\"\n                ng-model=\"searchText\">\n            <button class=\"btn\" ng-click=\"exportCSV()\">Export CSV</button>\n        </div>\n    </div>\n\n    <div class=\"table-wrapper\">\n        <table class=\"data-table\">\n            <thead>\n                <tr>\n                    <th ng-click=\"sortKey='symbol'; reverse=!reverse\">\n                        Symbol <span class=\"sort-icon\">▼</span>\n                    </th>\n                    <th ng-click=\"sortKey='company'; reverse=!reverse\">\n                        Company <span class=\"sort-icon\">▼</span>\n                    </th>\n                    <th ng-click=\"sortKey='price'; reverse=!reverse\">\n                        Price <span class=\"sort-icon\">▼</span>\n                    </th>\n                    <th ng-click=\"sortKey='open'; reverse=!reverse\">\n                        Open <span class=\"sort-icon\">▼</span>\n                    </th>\n                    <th ng-click=\"sortKey='high'; reverse=!reverse\">\n                        High <span class=\"sort-icon\">▼</span>\n                    </th>\n                    <th ng-click=\"sortKey='low'; reverse=!reverse\">\n                        Low <span class=\"sort-icon\">▼</span>\n                    </th>\n                    <th ng-click=\"sortKey='change'; reverse=!reverse\">\n                        Change % <span class=\"sort-icon\">▼</span>\n                    </th>\n                    <th ng-click=\"sortKey='rsi'; reverse=!reverse\">\n                        RSI <span class=\"sort-icon\">▼</span>\n                    </th>\n                    <th ng-click=\"sortKey='volume'; reverse=!reverse\">\n                        Volume <span class=\"sort-icon\">▼</span>\n                    </th>\n                </tr>\n            </thead>\n            <tbody>\n                <tr ng-repeat=\"stock in msg.payload | filter:searchText | orderBy:sortKey:reverse\">\n                    <td class=\"symbol-cell\">{{stock.symbol}}</td>\n                    <td class=\"company-cell\">{{stock.company}}</td>\n                    <td class=\"price-cell\">${{stock.price}}</td>\n                    <td>${{stock.open}}</td>\n                    <td>${{stock.high}}</td>\n                    <td>${{stock.low}}</td>\n                    <td>\n                        <span class=\"change-badge\" ng-class=\"stock.changeDirection\">\n                            <span ng-if=\"stock.changeDirection === 'up'\">▲</span>\n                            <span ng-if=\"stock.changeDirection === 'down'\">▼</span>\n                            {{stock.change}}%\n                        </span>\n                    </td>\n                    <td class=\"rsi-cell\" \n                        ng-class=\"{\n                            'oversold': stock.rsi < 30, \n                            'overbought': stock.rsi > 70,\n                            'neutral': stock.rsi >= 30 && stock.rsi <= 70\n                        }\">\n                        {{stock.rsi}}\n                    </td>\n                    <td>{{stock.volume}}</td>\n                </tr>\n            </tbody>\n        </table>\n    </div>\n</div>\n\n<script>\n(function(scope) {\n    scope.exportCSV = function() {\n        const data = scope.msg.payload;\n        if (!data || data.length === 0) return;\n        \n        let csv = 'Symbol,Company,Price,Open,High,Low,Change %,Daily Return,RSI,Volume,Date\\n';\n        \n        data.forEach(row => {\n            csv += `${row.symbol},\"${row.company}\",${row.price},${row.open},${row.high},${row.low},${row.change},${row.dailyReturn},${row.rsi},${row.volume},${row.date}\\n`;\n        });\n        \n        const blob = new Blob([csv], { type: 'text/csv' });\n        const url = window.URL.createObjectURL(blob);\n        const a = document.createElement('a');\n        a.href = url;\n        a.download = `stock_comparison_${new Date().toISOString().split('T')[0]}.csv`;\n        a.click();\n        window.URL.revokeObjectURL(url);\n    };\n})(scope);\n</script>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 880,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22527f1d94f6a320",
+        "type": "postgreSQLConfig",
+        "name": "etl_stocks_db",
+        "host": "localhost",
+        "hostFieldType": "str",
+        "port": 5432,
+        "portFieldType": "num",
+        "database": "etl_stocks",
+        "databaseFieldType": "str",
+        "ssl": "false",
+        "sslFieldType": "bool",
+        "applicationName": "",
+        "applicationNameType": "str",
+        "max": 10,
+        "maxFieldType": "num",
+        "idle": 1000,
+        "idleFieldType": "num",
+        "connectionTimeout": 10000,
+        "connectionTimeoutFieldType": "num",
+        "user": "postgres",
+        "userFieldType": "str",
+        "password": "5227",
+        "passwordFieldType": "str"
+    },
+    {
+        "id": "table_group",
+        "type": "ui_group",
+        "name": "Stock Comparison",
+        "tab": "152c379456ac1dae",
+        "order": 4,
+        "disp": true,
+        "width": "24",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "152c379456ac1dae",
+        "type": "ui_tab",
+        "name": "Overview",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "6bf257052239b9c3",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-postgresql": "0.15.4",
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
