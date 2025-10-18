@@ -1,0 +1,327 @@
+[
+    {
+        "id": "6c4cd08fd54d7152",
+        "type": "tab",
+        "label": "Price History",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "trigger_start",
+        "type": "inject",
+        "z": "6c4cd08fd54d7152",
+        "name": "Trigger on Start",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 260,
+        "wires": [
+            [
+                "set_default_period"
+            ]
+        ]
+    },
+    {
+        "id": "set_default_period",
+        "type": "change",
+        "z": "6c4cd08fd54d7152",
+        "name": "Set Default Period",
+        "rules": [
+            {
+                "t": "set",
+                "p": "period",
+                "pt": "msg",
+                "to": "2weeks",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 370,
+        "y": 260,
+        "wires": [
+            [
+                "calculate_interval"
+            ]
+        ]
+    },
+    {
+        "id": "calculate_interval",
+        "type": "function",
+        "z": "6c4cd08fd54d7152",
+        "name": "Calculate Interval",
+        "func": "var periods = {\n    '1day': '1 day',\n    '1week': '7 days',\n    '2weeks': '14 days',\n    '1month': '30 days',\n    '3months': '90 days',\n    '6months': '180 days',\n    '1year': '365 days'\n};\n\nvar selectedPeriod = msg.period || '2weeks';\nmsg.interval = periods[selectedPeriod] || '14 days';\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 260,
+        "wires": [
+            [
+                "get_price_history"
+            ]
+        ]
+    },
+    {
+        "id": "get_price_history",
+        "type": "postgresql",
+        "z": "6c4cd08fd54d7152",
+        "name": "Get Price History",
+        "query": "SELECT \n    s.symbol,\n    dp.price_date,\n    dp.close_price\nFROM daily_prices dp\nINNER JOIN stocks s ON dp.stock_id = s.stock_id\nWHERE s.is_active = TRUE\n  AND dp.price_date >= CURRENT_DATE - INTERVAL '{{msg.interval}}'\nORDER BY s.symbol, dp.price_date;",
+        "postgreSQLConfig": "22527f1d94f6a320",
+        "split": false,
+        "rowsPerMsg": 1,
+        "outputs": 1,
+        "x": 800,
+        "y": 260,
+        "wires": [
+            [
+                "debug_history",
+                "format_chart_data"
+            ]
+        ]
+    },
+    {
+        "id": "debug_history",
+        "type": "debug",
+        "z": "6c4cd08fd54d7152",
+        "name": "Debug Price History",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1040,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "format_chart_data",
+        "type": "function",
+        "z": "6c4cd08fd54d7152",
+        "name": "Format Chart Data",
+        "func": "// Limpa o gráfico primeiro\nnode.send({ payload: [] });\n\n// Aguarda um pouco e envia os dados\nvar data = msg.payload;\n\nif (!Array.isArray(data) || data.length === 0) {\n    node.warn(\"No data received\");\n    return null;\n}\n\n// Envia cada ponto de dados\nsetTimeout(function() {\n    data.forEach(function(row) {\n        var timestamp = new Date(row.price_date).getTime();\n        var price = parseFloat(row.close_price);\n        \n        node.send({\n            topic: row.symbol,\n            payload: price,\n            timestamp: timestamp\n        });\n    });\n}, 100);\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1040,
+        "y": 300,
+        "wires": [
+            [
+                "price_chart"
+            ]
+        ]
+    },
+    {
+        "id": "price_chart",
+        "type": "ui_chart",
+        "z": "6c4cd08fd54d7152",
+        "name": "Price History",
+        "group": "45043d5258d912e5",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "label": "Stock Price History",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "D/M",
+        "interpolate": "linear",
+        "nodata": "No data available",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "31536000",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1260,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "period_dropdown",
+        "type": "ui_dropdown",
+        "z": "6c4cd08fd54d7152",
+        "name": "Period Selector",
+        "label": "Period",
+        "tooltip": "",
+        "place": "Select period",
+        "group": "45043d5258d912e5",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": false,
+        "options": [
+            {
+                "label": "1 Day",
+                "value": "1day",
+                "type": "str"
+            },
+            {
+                "label": "1 Week",
+                "value": "1week",
+                "type": "str"
+            },
+            {
+                "label": "2 Weeks",
+                "value": "2weeks",
+                "type": "str"
+            },
+            {
+                "label": "1 Month",
+                "value": "1month",
+                "type": "str"
+            },
+            {
+                "label": "3 Months",
+                "value": "3months",
+                "type": "str"
+            },
+            {
+                "label": "6 Months",
+                "value": "6months",
+                "type": "str"
+            },
+            {
+                "label": "1 Year",
+                "value": "1year",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "period",
+        "topicType": "str",
+        "className": "",
+        "x": 160,
+        "y": 360,
+        "wires": [
+            [
+                "set_period_from_dropdown"
+            ]
+        ]
+    },
+    {
+        "id": "set_period_from_dropdown",
+        "type": "change",
+        "z": "6c4cd08fd54d7152",
+        "name": "Set Period from Dropdown",
+        "rules": [
+            {
+                "t": "set",
+                "p": "period",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 390,
+        "y": 360,
+        "wires": [
+            [
+                "calculate_interval"
+            ]
+        ]
+    },
+    {
+        "id": "22527f1d94f6a320",
+        "type": "postgreSQLConfig",
+        "name": "etl_stocks_db",
+        "host": "localhost",
+        "hostFieldType": "str",
+        "port": 5432,
+        "portFieldType": "num",
+        "database": "etl_stocks",
+        "databaseFieldType": "str",
+        "ssl": "false",
+        "sslFieldType": "bool",
+        "applicationName": "",
+        "applicationNameType": "str",
+        "max": 10,
+        "maxFieldType": "num",
+        "idle": 1000,
+        "idleFieldType": "num",
+        "connectionTimeout": 10000,
+        "connectionTimeoutFieldType": "num",
+        "user": "postgres",
+        "userFieldType": "str",
+        "password": "5227",
+        "passwordFieldType": "str"
+    },
+    {
+        "id": "45043d5258d912e5",
+        "type": "ui_group",
+        "name": "Price History",
+        "tab": "152c379456ac1dae",
+        "order": 2,
+        "disp": true,
+        "width": "24",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "152c379456ac1dae",
+        "type": "ui_tab",
+        "name": "Overview",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "8e5c7d390b23c9fc",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-postgresql": "0.15.4",
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
