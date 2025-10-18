@@ -715,7 +715,7 @@ var resultArray = [];
 
 for (var date in timeSeries) {
     var dayData = timeSeries[date];
-	writeToLog("d", "Close: " + dayData["4. close"] + ", Volume: " + dayData["5. volume"]);
+	// writeToLog("d", "Close: " + dayData["4. close"] + ", Volume: " + dayData["5. volume"]);
     resultArray.push({
         "date": date,
         "open": dayData["1. open"],
@@ -768,9 +768,11 @@ var transformed_json = JSON.stringify(resultArray);</jsScript_script>
     <fields>
       <field>
         <name>stock_id</name>
+        <rename/>
       </field>
       <field>
         <name>symbol</name>
+        <rename/>
       </field>
       <field>
         <name>date</name>
@@ -794,9 +796,11 @@ var transformed_json = JSON.stringify(resultArray);</jsScript_script>
       </field>
       <field>
         <name>volume</name>
+        <rename/>
       </field>
       <field>
         <name>extraction_timestamp</name>
+        <rename/>
       </field>
       <select_unspecified>N</select_unspecified>
       <meta>
