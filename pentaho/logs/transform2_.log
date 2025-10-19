@@ -1,0 +1,19 @@
+2025-10-18 14:28:26.545 - Transform 2: Clean and Normalize - Using run configuration [Pentaho local]
+2025-10-18 14:28:26.545 - clean_and_normalize_data - Dispatching started for transformation [clean_and_normalize_data]
+2025-10-18 14:28:26.559 - Read Raw Prices CSV.0 - Header row skipped in file 'C:\Users\gabri\Documents\Estudos\isi\etl_stocks\pentaho\data\temp_data\raw_prices.csv'
+2025-10-18 14:28:26.560 - Validate with Regex.0 - Optimization level set to 9.
+2025-10-18 14:28:26.564 - Read Raw Prices CSV.0 - Finished processing (I=1101, O=0, R=0, W=1100, U=0, E=0)
+2025-10-18 14:28:26.571 - Apply Business Rules.0 - Optimization level set to 9.
+2025-10-18 14:28:26.603 - Validate with Regex.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.606 - Select values.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.611 - Apply Business Rules.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.615 - Filter Valid Rows.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.632 - Remove Duplicates.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.646 - Sort by Stock and Date.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.646 - Calculate Derived Fields.0 - Optimization level set to 9.
+2025-10-18 14:28:26.661 - Get Previous Close Price.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.672 - Calculate Derived Fields.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.676 - Replace NULL Values.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.681 - Format Fields.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.692 - Write Clean CSV.0 - Finished processing (I=0, O=1101, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:26.707 - Dummy (do nothing).0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)

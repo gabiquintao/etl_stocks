@@ -1,0 +1,14 @@
+2025-10-18 14:28:28.580 - Transform 4: Load to PostgreSQL - Using run configuration [Pentaho local]
+2025-10-18 14:28:28.581 - load_to_postgresql - Dispatching started for transformation [load_to_postgresql]
+2025-10-18 14:28:28.584 - Insert into technical_indicators.0 - Connected to database [etl_stocks] (commit=1000)
+2025-10-18 14:28:28.584 - Insert into daily_prices.0 - Connected to database [etl_stocks] (commit=1000)
+2025-10-18 14:28:28.592 - Read Technical Indicators CSV.0 - Header row skipped in file 'C:\Users\gabri\Documents\Estudos\isi\etl_stocks\pentaho\data\temp_data\technical_indicators.csv'
+2025-10-18 14:28:28.598 - Read Technical Indicators CSV.0 - Finished processing (I=1101, O=0, R=0, W=1100, U=0, E=0)
+2025-10-18 14:28:28.816 - Extract Indicator Details.0 - Optimization level set to 9.
+2025-10-18 14:28:28.863 - Insert into daily_prices.0 - Finished processing (I=0, O=1100, R=1100, W=1100, U=0, E=0)
+2025-10-18 14:28:28.895 - Normalize Indicators to Rows.0 - Finished processing (I=0, O=0, R=1100, W=15400, U=0, E=0)
+2025-10-18 14:28:28.916 - Extract Indicator Details.0 - Finished processing (I=0, O=0, R=15400, W=15400, U=0, E=0)
+2025-10-18 14:28:28.985 - Filter Valid Indicators.0 - Finished processing (I=0, O=0, R=15400, W=15400, U=0, E=0)
+2025-10-18 14:28:29.007 - Log Invalid Indicators.0 - Finished processing (I=0, O=4280, R=4279, W=4279, U=0, E=0)
+2025-10-18 14:28:30.025 - Insert into technical_indicators.0 - Finished processing (I=0, O=11121, R=11121, W=11121, U=0, E=0)
+2025-10-18 14:28:30.051 - Dummy (do nothing).0 - Finished processing (I=0, O=0, R=11121, W=11121, U=0, E=0)
