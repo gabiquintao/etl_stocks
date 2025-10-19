@@ -139,8 +139,7 @@ https://youtu.be/ECrITdBmVKI
 **QR Code para o vídeo:**
 
 ![My QR Code](ETL Stocks - ISI - Gabriel Araújo 27978.png)
-
-## Dados Utilizados
+![My QR Code](https://github.com/gabiquintao/etl_stocks/blob/main/ETL%20Stocks%20-%20ISI%20-%20Gabriel%20Ara%C3%BAjo%2027978.png "QR Code Vídeo Youtube")
 
 ### Fonte dos Dados:
 
