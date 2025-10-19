@@ -44,10 +44,10 @@ Este projeto implementa um sistema ETL (Extract, Transform, Load) para análise 
 
 ## Node-RED
 
-- [`dataint/ETL_STOCKS/nodered/comparative_table.json`](dataint/ETL_STOCKS/nodered/comparative_table.json) - Fluxo para tabelas comparativas
-- [`dataint/ETL_STOCKS/nodered/db.json`](dataint/ETL_STOCKS/nodered/db.json) - Configuração de ligação à BD
-- [`dataint/ETL_STOCKS/nodered/price_history.json`](dataint/ETL_STOCKS/nodered/price_history.json) - Processamento de histórico de preços
-- [`dataint/ETL_STOCKS/nodered/rsi_indicators.json`](dataint/ETL_STOCKS/nodered/rsi_indicators.json) - Cálculo de indicadores RSI
+- [`nodered/comparative_table.json`](nodered/comparative_table.json) - Fluxo para tabelas comparativas
+- [`nodered/db.json`](nodered/db.json) - Configuração de ligação à BD
+- [`nodered/price_history.json`](nodered/price_history.json) - Processamento de histórico de preços
+- [`nodered/rsi_indicators.json`](nodered/rsi_indicators.json) - Cálculo de indicadores RSI
 
 ### Scripts SQL
 
@@ -77,7 +77,7 @@ Este projeto implementa um sistema ETL (Extract, Transform, Load) para análise 
 
 ### Bibliotecas e Dependências:
 
-- Node-RED: `node-red-contrib-postgres`
+- Node-RED: `node-red-contrib-postgres`, `node-red-dashboard`
 
 ---
 
@@ -100,6 +100,7 @@ psql -d etl_stocks -f sql/db.sql
 ```bash
 npm install -g node-red
 npm install node-red-contrib-postgres
+npm install node-red-dashboard
 ```
 
 ### 2. **Configuração**
@@ -120,7 +121,7 @@ npm install node-red-contrib-postgres
 #### Pentaho GUI
 
 1. Abrir Spoon (interface gráfica do Pentaho)
-2. Abrir o ficheiro [`master_etl_pipeline.kjb`](dataint/ETL_STOCKS/jobs/master_etl_pipeline.kjb)
+2. Abrir o ficheiro [`master_etl_pipeline.kjb`](pentaho/jobs/master_etl_pipeline.kjb)
 3. Clicar em "Run"
 4. Verificar logs na consola
 
