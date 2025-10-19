@@ -15,11 +15,11 @@ Este projeto implementa um sistema ETL (Extract, Transform, Load) para análise 
 
 ## Estrutura de Ficheiros
 
-### 📄 Documentação
+### Documentação
 
 - [`report/27978_report.pdf`](report/27978_report.pdf) - Relatório final do projeto
 
-### 🔧 Transformações ETL
+### Transformações ETL
 
 #### Pentaho - Transformações
 
@@ -36,7 +36,7 @@ Este projeto implementa um sistema ETL (Extract, Transform, Load) para análise 
 
 - [`pentaho/logs`](pentaho/logs) - Logs depois de executar o Job
 
-### 📊 Dados
+### Dados
 
 #### Dados Temporários
 
@@ -49,17 +49,17 @@ Este projeto implementa um sistema ETL (Extract, Transform, Load) para análise 
 - [`dataint/ETL_STOCKS/nodered/price_history.json`](dataint/ETL_STOCKS/nodered/price_history.json) - Processamento de histórico de preços
 - [`dataint/ETL_STOCKS/nodered/rsi_indicators.json`](dataint/ETL_STOCKS/nodered/rsi_indicators.json) - Cálculo de indicadores RSI
 
-### 🗄️ Scripts SQL
+### Scripts SQL
 
 - [`sql/db.sql`](sql/db.sql) - Schema da base de dados
 - [`sql/text_queries.sql`](sql/text_queries.sql) - Queries úteis
 - [`sql/useful_queries.sql`](sql/useful_queries.sql) - Queries de análise
 
-### 🚀 Scripts de Execução
+### Scripts de Execução
 
 - [`start-nodered.bat`](start-nodered.bat) - Script para iniciar Node-RED (Windows)
 
-### 📝 Outros
+### Outros
 
 - [`.gitignore`](.gitignore) - Ficheiros ignorados pelo Git
 - [`LICENSE`](LICENSE) - Licença do projeto
@@ -130,35 +130,6 @@ npm install node-red-contrib-postgres
 2. Aceder a http://localhost:1880
 3. Fazer Deploy e executar os flows
 
-## Fluxo do Pipeline ETL
-
-```mermaid
-graph TD
-    A[1. EXTRACT] --> B[extract_api_data.ktr]
-    B --> C[Dados de APIs]
-    C --> D[CSV Temporário]
-
-    D --> E[2. TRANSFORM - CLEAN]
-    E --> F[clean_and_normalize_data.ktr]
-    F --> G[Limpeza de dados]
-    G --> H[Normalização]
-    H --> I[Validação]
-
-    I --> J[2. TRANSFORM - CALCULATE]
-    J --> K[calculate_technical_indicators.ktr]
-    K --> L[Cálculo RSI]
-    K --> M[Médias Móveis]
-    K --> N[Outros Indicadores]
-
-    L --> O[3. LOAD]
-    M --> O
-    N --> O
-    O --> P[load_to_postgresql.ktr]
-    P --> Q[PostgreSQL]
-    Q --> R[Criação de Índices]
-    R --> S[Validação Final]
-```
-
 ## Demonstração em Vídeo
 
 🎥 **Link para o vídeo de demonstração:**
@@ -167,9 +138,7 @@ https://youtu.be/ECrITdBmVKI
 
 **QR Code para o vídeo:**
 
-```
 ![My QR Code](ETL Stocks - ISI - Gabriel Araújo 27978.png)
-```
 
 ## Dados Utilizados
 
