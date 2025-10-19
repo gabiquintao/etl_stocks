@@ -1,17 +1,17 @@
-2025-10-18 14:28:27.556 - Transformation - Execute Transform 3 - Using run configuration [Pentaho local]
-2025-10-18 14:28:27.556 - calculate_technical_indicators - Dispatching started for transformation [calculate_technical_indicators]
-2025-10-18 14:28:27.569 - Read Clean Prices CSV.0 - Header row skipped in file 'C:\Users\gabri\Documents\Estudos\isi\etl_stocks\pentaho\data\temp_data\clean_prices.csv'
-2025-10-18 14:28:27.570 - Calculate Simple Moving Averages.0 - Optimization level set to 9.
-2025-10-18 14:28:27.570 - Read Clean Prices CSV.0 - Finished processing (I=1101, O=0, R=0, W=1100, U=0, E=0)
-2025-10-18 14:28:27.574 - Calculate Exponential Moving Averages.0 - Optimization level set to 9.
-2025-10-18 14:28:27.574 - Calculate MACD.0 - Optimization level set to 9.
-2025-10-18 14:28:27.589 - Calculate RSI.0 - Optimization level set to 9.
-2025-10-18 14:28:27.595 - Calculate Bollinger Bands.0 - Optimization level set to 9.
-2025-10-18 14:28:27.622 - Calculate Simple Moving Averages.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:27.669 - Calculate Exponential Moving Averages.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:27.688 - Calculate MACD.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:27.706 - Calculate RSI.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:27.749 - Calculate Bollinger Bands.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:27.769 - Select Final Fields.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:27.801 - Write Technical Indicators CSV.0 - Finished processing (I=0, O=1101, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:27.817 - Dummy (do nothing).0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:23.889 - Transformation - Execute Transform 3 - Using run configuration [Pentaho local]
+2025-10-19 18:17:23.889 - calculate_technical_indicators - Dispatching started for transformation [calculate_technical_indicators]
+2025-10-19 18:17:23.903 - Read Clean Prices CSV.0 - Header row skipped in file 'C:\Users\gabri\Documents\Estudos\isi\etl_stocks\pentaho\data\temp_data\clean_prices.csv'
+2025-10-19 18:17:23.904 - Calculate Simple Moving Averages.0 - Optimization level set to 9.
+2025-10-19 18:17:23.912 - Read Clean Prices CSV.0 - Finished processing (I=1101, O=0, R=0, W=1100, U=0, E=0)
+2025-10-19 18:17:23.913 - Calculate Exponential Moving Averages.0 - Optimization level set to 9.
+2025-10-19 18:17:23.920 - Calculate MACD.0 - Optimization level set to 9.
+2025-10-19 18:17:23.929 - Calculate RSI.0 - Optimization level set to 9.
+2025-10-19 18:17:23.937 - Calculate Bollinger Bands.0 - Optimization level set to 9.
+2025-10-19 18:17:23.970 - Calculate Simple Moving Averages.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:23.977 - Calculate Exponential Moving Averages.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:23.982 - Calculate MACD.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:23.987 - Calculate RSI.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:23.997 - Calculate Bollinger Bands.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:24.001 - Select Final Fields.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:24.009 - Write Technical Indicators CSV.0 - Finished processing (I=0, O=1101, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:24.024 - Dummy (do nothing).0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)

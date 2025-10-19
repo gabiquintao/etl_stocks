@@ -1,13 +1,13 @@
-2025-10-18 14:28:22.548 - Transform 1: Extract from API - Using run configuration [Pentaho local]
-2025-10-18 14:28:22.553 - extract_api_data - Dispatching started for transformation [extract_api_data]
-2025-10-18 14:28:22.682 - Get Active Stocks.0 - Finished reading query, closing connection
-2025-10-18 14:28:22.685 - Get Active Stocks.0 - Finished processing (I=11, O=0, R=0, W=11, U=0, E=0)
-2025-10-18 14:28:22.685 - Build API URLs.0 - Optimization level set to 9.
-2025-10-18 14:28:22.738 - Build API URLs.0 - Finished processing (I=0, O=0, R=11, W=11, U=0, E=0)
-2025-10-18 14:28:23.530 - Filter Values.0 - Optimization level set to 9.
-2025-10-18 14:28:25.975 - Call Alpha Vantage API.0 - Finished processing (I=0, O=0, R=11, W=11, U=0, E=0)
-2025-10-18 14:28:25.979 - Filter Values.0 - Finished processing (I=0, O=0, R=11, W=11, U=0, E=0)
-2025-10-18 14:28:25.982 - Parse JSON Response.0 - Finished processing (I=1100, O=0, R=11, W=1100, U=0, E=0)
-2025-10-18 14:28:25.986 - Format Fields.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:25.991 - Write to CSV.0 - Finished processing (I=0, O=1101, R=1100, W=1100, U=0, E=0)
-2025-10-18 14:28:26.003 - Dummy (do nothing).0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:17.843 - Transform 1: Extract from API - Using run configuration [Pentaho local]
+2025-10-19 18:17:17.843 - extract_api_data - Dispatching started for transformation [extract_api_data]
+2025-10-19 18:17:17.927 - Get Active Stocks.0 - Finished reading query, closing connection
+2025-10-19 18:17:17.927 - Build API URLs.0 - Optimization level set to 9.
+2025-10-19 18:17:17.928 - Get Active Stocks.0 - Finished processing (I=11, O=0, R=0, W=11, U=0, E=0)
+2025-10-19 18:17:17.980 - Build API URLs.0 - Finished processing (I=0, O=0, R=11, W=11, U=0, E=0)
+2025-10-19 18:17:18.308 - Filter Values.0 - Optimization level set to 9.
+2025-10-19 18:17:22.115 - Call Alpha Vantage API.0 - Finished processing (I=0, O=0, R=11, W=11, U=0, E=0)
+2025-10-19 18:17:22.130 - Filter Values.0 - Finished processing (I=0, O=0, R=11, W=11, U=0, E=0)
+2025-10-19 18:17:22.134 - Parse JSON Response.0 - Finished processing (I=1100, O=0, R=11, W=1100, U=0, E=0)
+2025-10-19 18:17:22.161 - Format Fields.0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:22.165 - Write to CSV.0 - Finished processing (I=0, O=1101, R=1100, W=1100, U=0, E=0)
+2025-10-19 18:17:22.179 - Dummy (do nothing).0 - Finished processing (I=0, O=0, R=1100, W=1100, U=0, E=0)
